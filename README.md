@@ -41,3 +41,5 @@ https://cdn.jsdelivr.net/gh/svetlanasamsonyan-hash/Website-UI-development@<ref>/
 3. Use the pinned jsDelivr URL (`@<new-commit-sha>`) for the changed file.
 
 See [CLAUDE.md](CLAUDE.md) for full guidance.
+
+<!-- workflow test: 2026-06-25 — verifying local commit pipeline -->
