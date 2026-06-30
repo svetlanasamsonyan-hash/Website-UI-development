@@ -1,0 +1,189 @@
+/* mrjindev — bet-win widget premium restyle */
+
+/* ── Fonts ─────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+/* ── Panel shell ────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] {
+    background: #0d0d0d !important;
+    border: 1px solid #b8862a !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* ── Header tabs ────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] .sl-tabs,
+section[data-mj="widget-bet-win"] [role="tablist"] {
+    background: #111 !important;
+    border-bottom: 1px solid #b8862a !important;
+    display: flex !important;
+    gap: 0 !important;
+}
+
+section[data-mj="widget-bet-win"] [role="tab"] {
+    flex: 1 !important;
+    padding: 10px 16px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #777 !important;
+    border-bottom: 2px solid transparent !important;
+    cursor: pointer !important;
+    transition: color 0.2s, border-color 0.2s !important;
+    background: transparent !important;
+}
+
+section[data-mj="widget-bet-win"] [role="tab"][aria-selected="true"],
+section[data-mj="widget-bet-win"] [role="tab"].active {
+    color: #d4a017 !important;
+    border-bottom-color: #d4a017 !important;
+    background: rgba(212,160,23,0.06) !important;
+}
+
+/* ── Table wrapper — custom scrollbar ──────────────────────────────────── */
+section[data-mj="widget-bet-win"] .sl-table-wrapper,
+section[data-mj="widget-bet-win"] [data-mj="widget-bet-win-table"] {
+    overflow-y: auto !important;
+    max-height: 420px !important;
+}
+
+section[data-mj="widget-bet-win"] ::-webkit-scrollbar {
+    width: 4px !important;
+}
+section[data-mj="widget-bet-win"] ::-webkit-scrollbar-track {
+    background: #111 !important;
+}
+section[data-mj="widget-bet-win"] ::-webkit-scrollbar-thumb {
+    background: #b8862a !important;
+    border-radius: 4px !important;
+}
+
+/* ── Table base ─────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] .sl-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+}
+
+/* ── Sticky header ──────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] thead tr th,
+section[data-mj="widget-bet-win"] .sl-table-header .sl-table-cell {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+    background: #111 !important;
+    color: #b8862a !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    padding: 10px 8px !important;
+    border-bottom: 1px solid #b8862a !important;
+    text-align: left !important;
+}
+
+/* ── Rows ───────────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] tr.sl-table-row {
+    transition: background 0.2s !important;
+    border-bottom: 1px solid rgba(184,134,42,0.12) !important;
+}
+
+section[data-mj="widget-bet-win"] tr.sl-table-row:nth-child(even) {
+    background: rgba(255,255,255,0.02) !important;
+}
+
+section[data-mj="widget-bet-win"] tr.sl-table-row:hover {
+    background: rgba(212,160,23,0.08) !important;
+}
+
+/* ── Cells ──────────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell {
+    padding: 9px 8px !important;
+    font-size: 12px !important;
+    color: #ccc !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    vertical-align: middle !important;
+}
+
+/* col 1 – GAME */
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(1) {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* col 5 – MULTIPLIER pill */
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(5) {
+    font-weight: 700 !important;
+}
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(5)::after {
+    content: attr(data-mult-display) !important;
+}
+
+/* col 6 – PAYOUT */
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(6) {
+    font-weight: 700 !important;
+    color: #d4a017 !important;
+}
+
+/* ── Multiplier badge ───────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] .bw-mult-badge {
+    display: inline-block !important;
+    padding: 2px 7px !important;
+    border-radius: 20px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    background: rgba(184,134,42,0.15) !important;
+    color: #d4a017 !important;
+    border: 1px solid rgba(184,134,42,0.35) !important;
+}
+
+/* ── Win tiers ──────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="big"] .sl-table-cell:nth-child(6) {
+    color: #f0c040 !important;
+    text-shadow: 0 0 8px rgba(240,192,64,0.4) !important;
+}
+
+section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="mega"] .sl-table-cell:nth-child(6) {
+    background: linear-gradient(90deg, #f5d020, #f0a500) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: none !important;
+    filter: drop-shadow(0 0 6px rgba(245,208,32,0.6)) !important;
+}
+
+section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="mega"] {
+    box-shadow: inset 0 0 0 1px rgba(245,208,32,0.2) !important;
+}
+
+section[data-mj="widget-bet-win"] .bw-mega-icon {
+    margin-left: 4px !important;
+    font-size: 13px !important;
+}
+
+/* ── Slide-in animation for new rows ───────────────────────────────────── */
+@keyframes bw-slide-in {
+    from { opacity: 0; transform: translateY(-8px); background: rgba(212,160,23,0.18); }
+    to   { opacity: 1; transform: translateY(0);    background: transparent; }
+}
+section[data-mj="widget-bet-win"] tr.sl-table-row.bw-new-row {
+    animation: bw-slide-in 0.5s ease forwards !important;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    /* Hide ID (col 2) and DATE (col 3) on narrow viewports */
+    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(2),
+    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(3),
+    section[data-mj="widget-bet-win"] thead tr th:nth-child(2),
+    section[data-mj="widget-bet-win"] thead tr th:nth-child(3),
+    section[data-mj="widget-bet-win"] .sl-table-header .sl-table-cell:nth-child(2),
+    section[data-mj="widget-bet-win"] .sl-table-header .sl-table-cell:nth-child(3) {
+        display: none !important;
+    }
+}
