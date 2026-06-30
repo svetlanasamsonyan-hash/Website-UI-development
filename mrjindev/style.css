@@ -1,11 +1,10 @@
-/* mrjindev — bet-win widget v3: shared-grid true column alignment */
+/* mrjindev — bet-win widget v4: payout headline, bet×mult subtext */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
-/* ── Column track definition — one source of truth ─────────────────────── */
-/*    GAME           ID      DATE    BET     MULT    PAYOUT                 */
+/* ── Column tracks: GAME | ID | DATE | PAYOUT-cluster ──────────────────── */
+/*    BET + MULT are rendered as subtext inside the PAYOUT cell by JS        */
 :root {
-    --bw-cols: minmax(0,1fr) 88px 110px 88px 88px 110px;
-    --bw-cols-narrow: minmax(0,1fr) 80px 100px;   /* GAME MULT PAYOUT only */
+    --bw-cols: minmax(0,1fr) 72px 100px 130px;
 }
 
 /* ── Panel shell ────────────────────────────────────────────────────────── */
@@ -21,34 +20,36 @@ section[data-mj="widget-bet-win"] .sl-table-heading {
     display: none !important;
 }
 
-/* ── Scrollable body ────────────────────────────────────────────────────── */
+/* ── Table = contents so body owns the grid ────────────────────────────── */
+section[data-mj="widget-bet-win"] .sl-table {
+    display: contents !important;
+}
+
+/* Ignore spacer rows */
+section[data-mj="widget-bet-win"] tr:not(.sl-table-row) { display: none !important; }
+
+/* ── Scrollable grid body ───────────────────────────────────────────────── */
 section[data-mj="widget-bet-win"] .sl-table-body {
-    display: flex !important;
-    flex-direction: column !important;
+    display: grid !important;
+    grid-template-columns: var(--bw-cols) !important;
+    grid-auto-rows: auto !important;
     gap: 6px !important;
     padding: 10px !important;
     max-height: 520px !important;
     overflow-y: auto !important;
     background: #0e0f11 !important;
+    align-items: start !important;
 }
 
 section[data-mj="widget-bet-win"] .sl-table-body::-webkit-scrollbar { width: 4px !important; }
 section[data-mj="widget-bet-win"] .sl-table-body::-webkit-scrollbar-track { background: #0e0f11 !important; }
 section[data-mj="widget-bet-win"] .sl-table-body::-webkit-scrollbar-thumb { background: #008A39 !important; border-radius: 4px !important; }
 
-/* ── Suppress table/thead/tbody/tr default display ──────────────────────── */
-section[data-mj="widget-bet-win"] .sl-table {
-    display: contents !important; /* let body be the grid owner */
-}
-
-/* Ignore spacer rows */
-section[data-mj="widget-bet-win"] tr:not(.sl-table-row) { display: none !important; }
-
-/* ── Card row = grid inheriting parent column tracks ────────────────────── */
+/* ── Card row ───────────────────────────────────────────────────────────── */
 section[data-mj="widget-bet-win"] tr.sl-table-row {
     display: grid !important;
-    grid-template-columns: var(--bw-cols) !important;  /* fallback */
-    grid-template-columns: subgrid !important;          /* subgrid where supported */
+    grid-template-columns: var(--bw-cols) !important; /* fallback */
+    grid-template-columns: subgrid !important;
     grid-column: 1 / -1 !important;
     align-items: center !important;
     background: #16181c !important;
@@ -62,26 +63,13 @@ section[data-mj="widget-bet-win"] tr.sl-table-row {
     font-family: 'Montserrat', sans-serif !important;
 }
 
-/* subgrid needs the parent to define columns — wrap body in a grid context */
-section[data-mj="widget-bet-win"] .sl-table-body {
-    display: grid !important;
-    grid-template-columns: var(--bw-cols) !important;
-    grid-auto-rows: auto !important;
-    gap: 6px !important;
-    padding: 10px !important;
-    max-height: 520px !important;
-    overflow-y: auto !important;
-    background: #0e0f11 !important;
-    align-items: start !important;
-}
-
 section[data-mj="widget-bet-win"] tr.sl-table-row:hover {
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 18px rgba(0,138,57,0.18) !important;
     border-color: rgba(0,138,57,0.3) !important;
 }
 
-/* Green flash overlay */
+/* green flash overlay */
 section[data-mj="widget-bet-win"] tr.sl-table-row::before {
     content: '' !important;
     position: absolute !important;
@@ -97,7 +85,7 @@ section[data-mj="widget-bet-win"] tr.sl-table-row.mj-flash::before {
     transition: none !important;
 }
 
-/* ── Cells: shared base ─────────────────────────────────────────────────── */
+/* ── Cells base ─────────────────────────────────────────────────────────── */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell {
     padding: 0 4px !important;
     border: none !important;
@@ -108,7 +96,6 @@ section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell {
     font-variant-numeric: tabular-nums !important;
     font-feature-settings: "tnum" !important;
     overflow: hidden !important;
-    text-overflow: ellipsis !important;
     white-space: nowrap !important;
     display: flex !important;
     align-items: center !important;
@@ -119,50 +106,50 @@ section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell {
 /* col 1 — GAME */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(1) {
     gap: 8px !important;
-    color: #fff !important;
-    font-weight: 600 !important;
     overflow: visible !important;
 }
 
-/* col 2 — ID */
+/* col 2 — ID (muted, right-aligned) */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(2) {
     font-size: 10px !important;
-    color: #444 !important;
+    color: #3a3a3a !important;
     justify-content: flex-end !important;
 }
 
-/* col 3 — DATE */
+/* col 3 — DATE (muted, right-aligned) */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(3) {
     font-size: 10px !important;
-    color: #444 !important;
+    color: #3a3a3a !important;
     justify-content: flex-end !important;
 }
 
-/* col 4 — BET */
+/* col 4 — BET: hidden (value surfaced as subtext in PAYOUT cell by JS) */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(4) {
-    justify-content: flex-end !important;
-    color: #777 !important;
+    display: none !important;
 }
 
-/* col 5 — MULTIPLIER */
+/* col 5 — MULTIPLIER: hidden (surfaced as subtext in PAYOUT cell by JS) */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(5) {
-    justify-content: flex-end !important;
+    display: none !important;
 }
 
-/* col 6 — PAYOUT */
+/* col 6 — PAYOUT: maps to grid column 4 via JS wrapper */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(6) {
-    justify-content: flex-end !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    color: #008A39 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    overflow: visible !important;
+    white-space: normal !important;
 }
 
-/* currency <object> — fixed size so icon column is consistent */
+/* currency icon consistent size */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell object,
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell img.currency {
     display: inline-block !important;
-    width: 16px !important;
-    height: 16px !important;
+    width: 14px !important;
+    height: 14px !important;
     vertical-align: middle !important;
     pointer-events: none !important;
     margin-right: 3px !important;
@@ -181,7 +168,6 @@ section[data-mj="widget-bet-win"] .mj-avatar {
     font-weight: 700 !important;
     color: #fff !important;
     flex-shrink: 0 !important;
-    letter-spacing: 0.02em !important;
     overflow: hidden !important;
 }
 section[data-mj="widget-bet-win"] .mj-avatar img {
@@ -189,7 +175,6 @@ section[data-mj="widget-bet-win"] .mj-avatar img {
     object-fit: cover !important; border-radius: 50% !important;
 }
 
-/* game name clamp inside col 1 */
 section[data-mj="widget-bet-win"] .mj-game-name {
     font-size: 12px !important;
     font-weight: 600 !important;
@@ -199,75 +184,66 @@ section[data-mj="widget-bet-win"] .mj-game-name {
     text-overflow: ellipsis !important;
 }
 
-/* ── Multiplier badge ───────────────────────────────────────────────────── */
-section[data-mj="widget-bet-win"] .mj-mult-badge {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    padding: 2px 8px !important;
-    border-radius: 20px !important;
-    font-size: 11px !important;
+/* ── Payout headline ────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] .mj-payout-amount {
+    font-size: 15px !important;
     font-weight: 700 !important;
-    background: rgba(0,138,57,0.12) !important;
-    color: #00b84a !important;
-    border: 1px solid rgba(0,138,57,0.25) !important;
+    color: #008A39 !important;
     white-space: nowrap !important;
-    min-width: 62px !important;
-    text-align: right !important;
+    display: flex !important;
+    align-items: center !important;
     font-variant-numeric: tabular-nums !important;
     font-feature-settings: "tnum" !important;
+    line-height: 1.2 !important;
+}
+
+/* ── Bet × mult subtext ─────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] .mj-bet-sub {
+    font-size: 10px !important;
+    color: #555 !important;
+    white-space: nowrap !important;
+    font-variant-numeric: tabular-nums !important;
+    font-feature-settings: "tnum" !important;
+    line-height: 1.2 !important;
 }
 
 /* ── Win tiers ──────────────────────────────────────────────────────────── */
-section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="big"] {
+section[data-mj="widget-bet-win"] tr[data-tier="big"] {
     border-color: rgba(0,138,57,0.25) !important;
 }
-section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="big"] .sl-table-cell:nth-child(6) {
+section[data-mj="widget-bet-win"] tr[data-tier="big"] .mj-payout-amount {
     color: #00cc4d !important;
-    text-shadow: 0 0 8px rgba(0,204,77,0.35) !important;
-}
-section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="big"] .mj-mult-badge {
-    background: rgba(0,138,57,0.22) !important;
-    border-color: rgba(0,138,57,0.45) !important;
-    color: #00e057 !important;
+    text-shadow: 0 0 8px rgba(0,204,77,0.3) !important;
 }
 
-section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="mega"] {
+section[data-mj="widget-bet-win"] tr[data-tier="mega"] {
     border-color: rgba(0,230,87,0.3) !important;
     box-shadow: 0 0 0 1px rgba(0,230,87,0.15), 0 0 16px rgba(0,230,87,0.08) !important;
 }
-section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="mega"] .sl-table-cell:nth-child(6) {
+section[data-mj="widget-bet-win"] tr[data-tier="mega"] .mj-payout-amount {
     background: linear-gradient(90deg,#00e057,#00ff88) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
-    filter: drop-shadow(0 0 6px rgba(0,230,87,0.5)) !important;
-}
-section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="mega"] .mj-mult-badge {
-    background: rgba(0,230,87,0.18) !important;
-    border-color: rgba(0,230,87,0.5) !important;
-    color: #00ff88 !important;
+    filter: drop-shadow(0 0 5px rgba(0,230,87,0.5)) !important;
 }
 
 /* ── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
     section[data-mj="widget-bet-win"] tr.sl-table-row,
     section[data-mj="widget-bet-win"] tr.sl-table-row::before {
-        transition: none !important;
-        animation: none !important;
+        transition: none !important; animation: none !important;
     }
 }
 
-/* ── Responsive — redefine tracks in one place ──────────────────────────── */
+/* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
     section[data-mj="widget-bet-win"] .sl-table-body,
     section[data-mj="widget-bet-win"] tr.sl-table-row {
-        grid-template-columns: minmax(0,1fr) 80px 100px !important;
+        grid-template-columns: minmax(0,1fr) 120px !important;
     }
-    /* hide ID, DATE, BET columns */
     section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(2),
-    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(3),
-    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(4) {
+    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(3) {
         display: none !important;
     }
 }
