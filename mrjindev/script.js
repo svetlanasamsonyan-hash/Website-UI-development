@@ -1,4 +1,4 @@
-/* mrjindev — bet-win widget v2: aligned numbers + smooth FLIP insertion */
+/* mrjindev — bet-win widget v3: subgrid alignment + smooth insertion */
 (function () {
     'use strict';
 
@@ -14,10 +14,10 @@
     /* ── Optional thumbnail map ─────────────────────────────────────────── */
     var GAME_THUMBNAILS = {};
 
-    /* ── Seen IDs — track rows that already existed (suppress re-animation) */
+    /* ── Seen IDs — suppress re-animation on React re-render ───────────── */
     var seenIds = new Set();
 
-    /* ── Reduced-motion check ───────────────────────────────────────────── */
+    /* ── Reduced-motion ─────────────────────────────────────────────────── */
     var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     /* ── Avatar palette ─────────────────────────────────────────────────── */
@@ -36,24 +36,19 @@
         return parts.length === 1 ? parts[0].slice(0, 2).toUpperCase() : (parts[0][0] + parts[1][0]).toUpperCase();
     }
 
-    /* ── Number formatting ──────────────────────────────────────────────── */
-    var fmtPayout = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    /* ── Number helpers ─────────────────────────────────────────────────── */
+    var fmtNum = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     function parseNum(cell) {
         var clone = cell.cloneNode(true);
-        clone.querySelectorAll('object, img.currency, svg').forEach(function (el) { el.remove(); });
+        clone.querySelectorAll('object, img.currency, svg').forEach(function (n) { n.remove(); });
         return parseFloat(clone.textContent.replace(/[^0-9.]/g, '')) || 0;
     }
-
     function parseMult(cell) {
-        return parseFloat(cell.textContent.replace(/[^0-9.]/g, '')) || 0;
+        var clone = cell.cloneNode(true);
+        clone.querySelectorAll('.mj-mult-badge').forEach(function (n) { n.remove(); });
+        return parseFloat(clone.textContent.replace(/[^0-9.]/g, '')) || 0;
     }
-
-    function formatMult(val) {
-        return 'x' + val.toFixed(2);
-    }
-
-    /* ── Tier ───────────────────────────────────────────────────────────── */
     function getTier(payout, mult) {
         if (payout >= TIER.mega.payout || mult >= TIER.mega.mult) return 'mega';
         if (payout >= TIER.big.payout  || mult >= TIER.big.mult)  return 'big';
@@ -67,13 +62,11 @@
         function step(ts) {
             if (!startTime) startTime = ts;
             var p = Math.min((ts - startTime) / duration, 1);
-            var val = p * target;
-            var txt = fmtPayout.format(val);
-            cell.textContent = txt;
+            cell.textContent = fmtNum.format(p * target);
             if (currencyNode) cell.prepend(currencyNode.cloneNode(true));
             if (p < 1) requestAnimationFrame(step);
             else {
-                cell.textContent = fmtPayout.format(target);
+                cell.textContent = fmtNum.format(target);
                 if (currencyNode) cell.prepend(currencyNode.cloneNode(true));
             }
         }
@@ -96,20 +89,6 @@
         return el;
     }
 
-    /* ── Wrap mult + payout cells in .mj-right grid container ───────────── */
-    function ensureRightCluster(row) {
-        if (row.querySelector('.mj-right')) return;
-        var cells = row.querySelectorAll('.sl-table-cell');
-        if (cells.length < 6) return;
-        var multCell   = cells[4];
-        var payoutCell = cells[5];
-        var wrap = document.createElement('div');
-        wrap.className = 'mj-right';
-        row.insertBefore(wrap, multCell);
-        wrap.appendChild(multCell);
-        wrap.appendChild(payoutCell);
-    }
-
     /* ── Process one row ────────────────────────────────────────────────── */
     function processRow(row, isNew) {
         if (!row.classList.contains('sl-table-row')) return;
@@ -118,127 +97,72 @@
 
         var gameCell   = cells[0];
         var idCell     = cells[1];
-        var dateCell   = cells[2];
         var multCell   = cells[4];
         var payoutCell = cells[5];
 
         var rowId = idCell.textContent.trim();
-
-        /* Already fully processed? */
         if (row.dataset.mjDone) return;
         row.dataset.mjDone = '1';
 
-        /* ── Avatar + game info ── */
+        /* ── Avatar in GAME cell ── */
         if (!gameCell.querySelector('.mj-avatar')) {
             var gameName = gameCell.textContent.trim();
             var avatar   = makeAvatar(gameName);
-            var info     = document.createElement('span');
-            info.className = 'mj-game-info';
-            var nameEl = document.createElement('span');
+            var nameEl   = document.createElement('span');
             nameEl.className = 'mj-game-name';
             nameEl.textContent = gameName;
-            var sub = document.createElement('span');
-            sub.className = 'mj-game-sub';
-            sub.textContent = [rowId, dateCell.textContent.trim()].filter(Boolean).join(' · ');
-            info.appendChild(nameEl);
-            info.appendChild(sub);
             gameCell.innerHTML = '';
             gameCell.appendChild(avatar);
-            gameCell.appendChild(info);
+            gameCell.appendChild(nameEl);
         }
 
-        /* ── Multiplier badge with normalized 2dp ── */
+        /* ── Multiplier badge with fixed 2dp ── */
         if (!multCell.querySelector('.mj-mult-badge')) {
-            var rawMult = parseMult(multCell);
+            var multVal = parseMult(multCell);
             multCell.innerHTML = '';
             var badge = document.createElement('span');
             badge.className = 'mj-mult-badge';
-            badge.textContent = formatMult(rawMult);
+            badge.textContent = 'x' + multVal.toFixed(2);
             multCell.appendChild(badge);
         }
 
-        /* ── Normalize payout to 2dp, keep currency icon ── */
-        var payoutVal = parseNum(payoutCell);
+        /* ── Normalize payout to 2dp, preserve currency icon ── */
+        var payoutVal    = parseNum(payoutCell);
         var currencyNode = payoutCell.querySelector('object') || payoutCell.querySelector('img.currency');
-        if (currencyNode) {
-            var saved = currencyNode.cloneNode(true);
-            payoutCell.textContent = fmtPayout.format(payoutVal);
-            payoutCell.prepend(saved);
-        } else {
-            payoutCell.textContent = fmtPayout.format(payoutVal);
-        }
-
-        /* ── Right cluster grid ── */
-        ensureRightCluster(row);
+        var savedCur     = currencyNode ? currencyNode.cloneNode(true) : null;
+        payoutCell.textContent = fmtNum.format(payoutVal);
+        if (savedCur) payoutCell.prepend(savedCur);
 
         /* ── Tier ── */
-        var multVal = parseMult(multCell);
-        var tier    = getTier(payoutVal, multVal);
+        var mVal = parseMult(multCell);
+        var tier = getTier(payoutVal, mVal);
         row.setAttribute('data-tier', tier);
 
         if (tier === 'mega' && !row.querySelector('.mj-mega-icon')) {
             var crown = document.createElement('span');
             crown.className = 'mj-mega-icon';
             crown.textContent = '👑';
-            crown.style.cssText = 'position:absolute;top:8px;right:8px;font-size:14px;pointer-events:none;';
+            crown.style.cssText = 'position:absolute;top:6px;right:8px;font-size:13px;pointer-events:none;z-index:2;';
             row.appendChild(crown);
         }
 
-        /* ── Animation for new rows ── */
+        /* ── New-row animation ── */
         var isUnseen = !seenIds.has(rowId);
         seenIds.add(rowId);
 
         if (isNew && isUnseen && !reducedMotion) {
-            /* count-up on payout */
             countUp(payoutCell, payoutVal, 400);
         }
     }
 
-    /* ── FLIP animation for new-row insertion ───────────────────────────── */
-    var staggerQueue = [];
-    var staggerTimer = null;
-    var MAX_CONCURRENT = 5;
-
-    function drainStagger() {
-        var batch = staggerQueue.splice(0, MAX_CONCURRENT);
-        batch.forEach(function (row, i) {
-            setTimeout(function () { animateIn(row); }, i * 60);
-        });
-        if (staggerQueue.length) staggerTimer = setTimeout(drainStagger, batch.length * 60 + 60);
-        else staggerTimer = null;
-    }
-
-    function animateIn(row) {
+    /* ── FLIP: slide existing cards down smoothly ───────────────────────── */
+    function flip(container) {
         if (reducedMotion) return;
-        /* start state */
-        row.style.opacity = '0';
-        row.style.transform = 'translateY(-10px) scale(0.98)';
-        row.style.transition = 'none';
-
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-                row.style.transition = 'opacity 0.4s cubic-bezier(0.22,0.61,0.36,1), transform 0.4s cubic-bezier(0.22,0.61,0.36,1)';
-                row.style.opacity = '1';
-                row.style.transform = '';
-
-                /* green flash */
-                row.classList.add('mj-flash');
-                setTimeout(function () { row.classList.remove('mj-flash'); }, 50);
-            });
-        });
-    }
-
-    /* ── FLIP: record positions of existing cards, apply inverse, transition to 0 */
-    function flipExisting(container) {
-        if (reducedMotion) return;
-        var cards = Array.from(container.querySelectorAll('tr.sl-table-row[data-mj-done]'));
-        /* READ phase */
-        var tops = cards.map(function (c) { return c.getBoundingClientRect().top; });
-        /* WRITE phase — after browser has inserted new node */
+        var cards = Array.from(container.querySelectorAll('tr.sl-table-row'));
+        var tops  = cards.map(function (c) { return c.getBoundingClientRect().top; });
         requestAnimationFrame(function () {
             cards.forEach(function (card, i) {
-                var newTop = card.getBoundingClientRect().top;
-                var delta  = tops[i] - newTop;
+                var delta = tops[i] - card.getBoundingClientRect().top;
                 if (Math.abs(delta) < 1) return;
                 card.style.transition = 'none';
                 card.style.transform  = 'translateY(' + delta + 'px)';
@@ -250,48 +174,70 @@
         });
     }
 
-    /* ── Process all existing rows ──────────────────────────────────────── */
-    function processAll(widget) {
-        widget.querySelectorAll('tr.sl-table-row').forEach(function (r) {
-            var idCell = r.querySelectorAll('.sl-table-cell')[1];
-            if (idCell) seenIds.add(idCell.textContent.trim());
-            processRow(r, false);
+    /* ── Staggered slide-in for new rows ────────────────────────────────── */
+    var staggerQueue = [];
+    var staggerTimer  = null;
+
+    function animateIn(row) {
+        row.style.opacity    = '0';
+        row.style.transform  = 'translateY(-10px) scale(0.98)';
+        row.style.transition = 'none';
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                row.style.transition = 'opacity 0.4s cubic-bezier(0.22,0.61,0.36,1), transform 0.4s cubic-bezier(0.22,0.61,0.36,1)';
+                row.style.opacity    = '1';
+                row.style.transform  = '';
+                row.classList.add('mj-flash');
+                setTimeout(function () { row.classList.remove('mj-flash'); }, 50);
+            });
         });
+    }
+
+    function drainStagger() {
+        var batch = staggerQueue.splice(0, 5);
+        batch.forEach(function (row, i) { setTimeout(function () { animateIn(row); }, i * 60); });
+        staggerTimer = staggerQueue.length ? setTimeout(drainStagger, batch.length * 60 + 60) : null;
     }
 
     /* ── MutationObserver ───────────────────────────────────────────────── */
     var debounce;
     function observe(widget) {
         var body = widget.querySelector('.sl-table-body') || widget;
-        var obs  = new MutationObserver(function (mutations) {
+        new MutationObserver(function (mutations) {
             clearTimeout(debounce);
             debounce = setTimeout(function () {
                 var newRows = [];
                 mutations.forEach(function (m) {
                     m.addedNodes.forEach(function (node) {
                         if (node.nodeType !== 1) return;
-                        var rows = node.classList && node.classList.contains('sl-table-row')
+                        var rows = (node.classList && node.classList.contains('sl-table-row'))
                             ? [node]
                             : Array.from(node.querySelectorAll ? node.querySelectorAll('tr.sl-table-row') : []);
                         rows.forEach(function (r) {
-                            var idCell = r.querySelectorAll('.sl-table-cell')[1];
-                            var rowId  = idCell ? idCell.textContent.trim() : '';
-                            var unseen = !seenIds.has(rowId);
+                            var idTxt = (r.querySelectorAll('.sl-table-cell')[1] || {}).textContent || '';
+                            if (!seenIds.has(idTxt.trim())) newRows.push(r);
                             processRow(r, true);
-                            if (unseen) newRows.push(r);
                         });
                     });
                 });
-                /* Re-scan for React full-replacement renders */
+                /* re-scan in case React replaced whole tbody */
                 processAll(widget);
-                if (newRows.length) {
-                    flipExisting(body);
+                if (newRows.length && !reducedMotion) {
+                    flip(body);
                     newRows.forEach(function (r) { staggerQueue.push(r); });
                     if (!staggerTimer) staggerTimer = setTimeout(drainStagger, 0);
                 }
             }, 60);
+        }).observe(body, { childList: true, subtree: true });
+    }
+
+    /* ── Process all ────────────────────────────────────────────────────── */
+    function processAll(widget) {
+        widget.querySelectorAll('tr.sl-table-row').forEach(function (r) {
+            var idCell = r.querySelectorAll('.sl-table-cell')[1];
+            if (idCell) seenIds.add(idCell.textContent.trim());
+            processRow(r, false);
         });
-        obs.observe(body, { childList: true, subtree: true });
     }
 
     /* ── Init ───────────────────────────────────────────────────────────── */
@@ -302,9 +248,7 @@
         observe(widget);
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', init)
+        : init();
 })();

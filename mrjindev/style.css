@@ -1,16 +1,11 @@
-/* mrjindev — bet-win widget: card/avatar leaderboard v2 */
+/* mrjindev — bet-win widget v3: shared-grid true column alignment */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
-/* ── Reset table to block ───────────────────────────────────────────────── */
-section[data-mj="widget-bet-win"] .sl-table,
-section[data-mj="widget-bet-win"] .sl-table-body,
-section[data-mj="widget-bet-win"] .sl-table-heading {
-    display: block !important;
-    width: 100% !important;
-}
-
-section[data-mj="widget-bet-win"] .sl-table-heading {
-    display: none !important;
+/* ── Column track definition — one source of truth ─────────────────────── */
+/*    GAME           ID      DATE    BET     MULT    PAYOUT                 */
+:root {
+    --bw-cols: minmax(0,1fr) 88px 110px 88px 88px 110px;
+    --bw-cols-narrow: minmax(0,1fr) 80px 100px;   /* GAME MULT PAYOUT only */
 }
 
 /* ── Panel shell ────────────────────────────────────────────────────────── */
@@ -21,38 +16,63 @@ section[data-mj="widget-bet-win"] {
     font-family: 'Montserrat', sans-serif !important;
 }
 
-/* ── Scrollable feed ────────────────────────────────────────────────────── */
+/* ── Hide thead ─────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] .sl-table-heading {
+    display: none !important;
+}
+
+/* ── Scrollable body ────────────────────────────────────────────────────── */
 section[data-mj="widget-bet-win"] .sl-table-body {
     display: flex !important;
     flex-direction: column !important;
-    gap: 8px !important;
-    padding: 12px !important;
+    gap: 6px !important;
+    padding: 10px !important;
     max-height: 520px !important;
     overflow-y: auto !important;
     background: #0e0f11 !important;
-    font-family: 'Montserrat', sans-serif !important;
 }
 
 section[data-mj="widget-bet-win"] .sl-table-body::-webkit-scrollbar { width: 4px !important; }
 section[data-mj="widget-bet-win"] .sl-table-body::-webkit-scrollbar-track { background: #0e0f11 !important; }
 section[data-mj="widget-bet-win"] .sl-table-body::-webkit-scrollbar-thumb { background: #008A39 !important; border-radius: 4px !important; }
 
+/* ── Suppress table/thead/tbody/tr default display ──────────────────────── */
+section[data-mj="widget-bet-win"] .sl-table {
+    display: contents !important; /* let body be the grid owner */
+}
+
+/* Ignore spacer rows */
 section[data-mj="widget-bet-win"] tr:not(.sl-table-row) { display: none !important; }
 
-/* ── Card ───────────────────────────────────────────────────────────────── */
+/* ── Card row = grid inheriting parent column tracks ────────────────────── */
 section[data-mj="widget-bet-win"] tr.sl-table-row {
-    display: flex !important;
+    display: grid !important;
+    grid-template-columns: var(--bw-cols) !important;  /* fallback */
+    grid-template-columns: subgrid !important;          /* subgrid where supported */
+    grid-column: 1 / -1 !important;
     align-items: center !important;
-    gap: 12px !important;
     background: #16181c !important;
     border: 1px solid rgba(255,255,255,0.06) !important;
     border-radius: 12px !important;
-    padding: 12px 14px !important;
+    padding: 10px 12px !important;
     position: relative !important;
     overflow: hidden !important;
-    /* hover only — entry animation driven by JS via will-change */
     transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
     will-change: transform, opacity !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* subgrid needs the parent to define columns — wrap body in a grid context */
+section[data-mj="widget-bet-win"] .sl-table-body {
+    display: grid !important;
+    grid-template-columns: var(--bw-cols) !important;
+    grid-auto-rows: auto !important;
+    gap: 6px !important;
+    padding: 10px !important;
+    max-height: 520px !important;
+    overflow-y: auto !important;
+    background: #0e0f11 !important;
+    align-items: start !important;
 }
 
 section[data-mj="widget-bet-win"] tr.sl-table-row:hover {
@@ -61,7 +81,7 @@ section[data-mj="widget-bet-win"] tr.sl-table-row:hover {
     border-color: rgba(0,138,57,0.3) !important;
 }
 
-/* Green flash overlay — fades out via JS transition */
+/* Green flash overlay */
 section[data-mj="widget-bet-win"] tr.sl-table-row::before {
     content: '' !important;
     position: absolute !important;
@@ -70,85 +90,94 @@ section[data-mj="widget-bet-win"] tr.sl-table-row::before {
     background: transparent !important;
     pointer-events: none !important;
     transition: background 0.7s ease !important;
+    z-index: 0 !important;
 }
 section[data-mj="widget-bet-win"] tr.sl-table-row.mj-flash::before {
     background: rgba(0,138,57,0.13) !important;
-    transition: none !important; /* instant on, slow off */
+    transition: none !important;
 }
 
-/* ── Hide all cells by default ──────────────────────────────────────────── */
+/* ── Cells: shared base ─────────────────────────────────────────────────── */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell {
-    display: none !important;
-    padding: 0 !important;
+    padding: 0 4px !important;
     border: none !important;
     background: none !important;
     font-family: 'Montserrat', sans-serif !important;
+    font-size: 12px !important;
+    color: #aaa !important;
     font-variant-numeric: tabular-nums !important;
     font-feature-settings: "tnum" !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 /* col 1 — GAME */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(1) {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    flex: 1 !important;
-    min-width: 0 !important;
-    order: 1 !important;
-}
-
-/* ── Right cluster: fixed grid for alignment ────────────────────────────── */
-section[data-mj="widget-bet-win"] .mj-right {
-    display: grid !important;
-    grid-template-columns: 88px 120px !important;
-    align-items: center !important;
     gap: 8px !important;
-    flex-shrink: 0 !important;
-    order: 2 !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    overflow: visible !important;
 }
 
-/* col 5 — MULTIPLIER (lives inside .mj-right, col 1) */
+/* col 2 — ID */
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(2) {
+    font-size: 10px !important;
+    color: #444 !important;
+    justify-content: flex-end !important;
+}
+
+/* col 3 — DATE */
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(3) {
+    font-size: 10px !important;
+    color: #444 !important;
+    justify-content: flex-end !important;
+}
+
+/* col 4 — BET */
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(4) {
+    justify-content: flex-end !important;
+    color: #777 !important;
+}
+
+/* col 5 — MULTIPLIER */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(5) {
-    display: flex !important;
     justify-content: flex-end !important;
-    align-items: center !important;
-    font-variant-numeric: tabular-nums !important;
-    font-feature-settings: "tnum" !important;
 }
 
-/* col 6 — PAYOUT (lives inside .mj-right, col 2) */
+/* col 6 — PAYOUT */
 section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(6) {
-    display: flex !important;
-    align-items: center !important;
     justify-content: flex-end !important;
-    gap: 0 !important;
-    font-size: 15px !important;
+    font-size: 14px !important;
     font-weight: 700 !important;
     color: #008A39 !important;
-    white-space: nowrap !important;
-    font-variant-numeric: tabular-nums !important;
-    font-feature-settings: "tnum" !important;
 }
 
-/* currency <object> — fixed left margin so icon position is constant */
-section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(6) object,
-section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(4) object {
+/* currency <object> — fixed size so icon column is consistent */
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell object,
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell img.currency {
     display: inline-block !important;
+    width: 16px !important;
+    height: 16px !important;
     vertical-align: middle !important;
     pointer-events: none !important;
-    margin-right: 4px !important;
+    margin-right: 3px !important;
     flex-shrink: 0 !important;
 }
 
 /* ── Avatar ──────────────────────────────────────────────────────────────── */
 section[data-mj="widget-bet-win"] .mj-avatar {
-    width: 38px !important;
-    height: 38px !important;
+    width: 32px !important;
+    height: 32px !important;
     border-radius: 50% !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 13px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
     color: #fff !important;
     flex-shrink: 0 !important;
@@ -156,36 +185,18 @@ section[data-mj="widget-bet-win"] .mj-avatar {
     overflow: hidden !important;
 }
 section[data-mj="widget-bet-win"] .mj-avatar img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    border-radius: 50% !important;
+    width: 100% !important; height: 100% !important;
+    object-fit: cover !important; border-radius: 50% !important;
 }
 
-/* ── Game info ──────────────────────────────────────────────────────────── */
-section[data-mj="widget-bet-win"] .mj-game-info {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 2px !important;
-    min-width: 0 !important;
-}
+/* game name clamp inside col 1 */
 section[data-mj="widget-bet-win"] .mj-game-name {
-    font-size: 13px !important;
+    font-size: 12px !important;
     font-weight: 600 !important;
-    color: #ffffff !important;
+    color: #fff !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    max-width: 160px !important;
-}
-section[data-mj="widget-bet-win"] .mj-game-sub {
-    font-size: 10px !important;
-    font-weight: 400 !important;
-    color: #555 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 160px !important;
 }
 
 /* ── Multiplier badge ───────────────────────────────────────────────────── */
@@ -193,16 +204,15 @@ section[data-mj="widget-bet-win"] .mj-mult-badge {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    padding: 3px 10px !important;
+    padding: 2px 8px !important;
     border-radius: 20px !important;
     font-size: 11px !important;
     font-weight: 700 !important;
-    letter-spacing: 0.03em !important;
     background: rgba(0,138,57,0.12) !important;
     color: #00b84a !important;
     border: 1px solid rgba(0,138,57,0.25) !important;
     white-space: nowrap !important;
-    min-width: 72px !important;
+    min-width: 62px !important;
     text-align: right !important;
     font-variant-numeric: tabular-nums !important;
     font-feature-settings: "tnum" !important;
@@ -227,7 +237,7 @@ section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="mega"] {
     box-shadow: 0 0 0 1px rgba(0,230,87,0.15), 0 0 16px rgba(0,230,87,0.08) !important;
 }
 section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="mega"] .sl-table-cell:nth-child(6) {
-    background: linear-gradient(90deg, #00e057, #00ff88) !important;
+    background: linear-gradient(90deg,#00e057,#00ff88) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     background-clip: text !important;
@@ -248,9 +258,16 @@ section[data-mj="widget-bet-win"] tr.sl-table-row[data-tier="mega"] .mj-mult-bad
     }
 }
 
-/* ── Responsive ─────────────────────────────────────────────────────────── */
-@media (max-width: 480px) {
-    section[data-mj="widget-bet-win"] .mj-game-sub { display: none !important; }
-    section[data-mj="widget-bet-win"] .mj-game-name { max-width: 110px !important; }
-    section[data-mj="widget-bet-win"] .mj-right { grid-template-columns: 72px 100px !important; }
+/* ── Responsive — redefine tracks in one place ──────────────────────────── */
+@media (max-width: 600px) {
+    section[data-mj="widget-bet-win"] .sl-table-body,
+    section[data-mj="widget-bet-win"] tr.sl-table-row {
+        grid-template-columns: minmax(0,1fr) 80px 100px !important;
+    }
+    /* hide ID, DATE, BET columns */
+    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(2),
+    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(3),
+    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(4) {
+        display: none !important;
+    }
 }
