@@ -1,0 +1,258 @@
+/* betrari.win — custom UI overrides */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+/* ── Bet-win widget: column tracks ─────────────────────────────────────── */
+:root {
+    --bw-cols: minmax(0,1fr) 72px 100px 130px;
+}
+
+/* ── Panel shell ────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] {
+    background: #0e0f11 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+section[data-mj="widget-bet-win"] .sl-table-heading { display: none !important; }
+section[data-mj="widget-bet-win"] .sl-table { display: contents !important; }
+section[data-mj="widget-bet-win"] tr:not(.sl-table-row) { display: none !important; }
+
+/* ── Scrollable grid body ───────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] .sl-table-body {
+    display: grid !important;
+    grid-template-columns: var(--bw-cols) !important;
+    grid-auto-rows: auto !important;
+    gap: 6px !important;
+    padding: 10px !important;
+    max-height: 520px !important;
+    overflow-y: auto !important;
+    background: #0e0f11 !important;
+    align-items: start !important;
+}
+section[data-mj="widget-bet-win"] .sl-table-body::-webkit-scrollbar { width: 4px !important; }
+section[data-mj="widget-bet-win"] .sl-table-body::-webkit-scrollbar-track { background: #0e0f11 !important; }
+section[data-mj="widget-bet-win"] .sl-table-body::-webkit-scrollbar-thumb { background: #008A39 !important; border-radius: 4px !important; }
+
+/* ── Card row ───────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] tr.sl-table-row {
+    display: grid !important;
+    grid-template-columns: var(--bw-cols) !important;
+    grid-template-columns: subgrid !important;
+    grid-column: 1 / -1 !important;
+    align-items: center !important;
+    background: #16181c !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    border-radius: 12px !important;
+    padding: 10px 12px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
+    will-change: transform, opacity !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+section[data-mj="widget-bet-win"] tr.sl-table-row:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 18px rgba(0,138,57,0.18) !important;
+    border-color: rgba(0,138,57,0.3) !important;
+}
+section[data-mj="widget-bet-win"] tr.sl-table-row::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 12px !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    transition: background 0.7s ease !important;
+    z-index: 0 !important;
+}
+section[data-mj="widget-bet-win"] tr.sl-table-row.mj-flash::before {
+    background: rgba(0,138,57,0.13) !important;
+    transition: none !important;
+}
+
+/* ── Cells ──────────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell {
+    padding: 0 4px !important;
+    border: none !important;
+    background: none !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 12px !important;
+    color: #aaa !important;
+    font-variant-numeric: tabular-nums !important;
+    font-feature-settings: "tnum" !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(1) { gap: 8px !important; overflow: visible !important; }
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(2) { font-size: 10px !important; color: #3a3a3a !important; justify-content: flex-end !important; }
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(3) { font-size: 10px !important; color: #3a3a3a !important; justify-content: flex-end !important; }
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(4) { display: none !important; }
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(5) { display: none !important; }
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(6) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    overflow: visible !important;
+    white-space: normal !important;
+}
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell object,
+section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell img.currency {
+    display: inline-block !important;
+    width: 14px !important; height: 14px !important;
+    vertical-align: middle !important;
+    pointer-events: none !important;
+    margin-right: 3px !important;
+    flex-shrink: 0 !important;
+}
+
+/* ── Avatar ──────────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] .mj-avatar {
+    width: 32px !important; height: 32px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    flex-shrink: 0 !important;
+    overflow: hidden !important;
+}
+section[data-mj="widget-bet-win"] .mj-avatar img { width: 100% !important; height: 100% !important; object-fit: cover !important; border-radius: 50% !important; }
+section[data-mj="widget-bet-win"] .mj-game-name { font-size: 12px !important; font-weight: 600 !important; color: #fff !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+section[data-mj="widget-bet-win"] .mj-payout-amount { font-size: 15px !important; font-weight: 700 !important; color: #008A39 !important; white-space: nowrap !important; display: flex !important; align-items: center !important; font-variant-numeric: tabular-nums !important; font-feature-settings: "tnum" !important; line-height: 1.2 !important; }
+section[data-mj="widget-bet-win"] .mj-bet-sub { font-size: 10px !important; color: #555 !important; white-space: nowrap !important; font-variant-numeric: tabular-nums !important; font-feature-settings: "tnum" !important; line-height: 1.2 !important; }
+
+/* ── Tiers ──────────────────────────────────────────────────────────────── */
+section[data-mj="widget-bet-win"] tr[data-tier="big"] { border-color: rgba(0,138,57,0.25) !important; }
+section[data-mj="widget-bet-win"] tr[data-tier="big"] .mj-payout-amount { color: #00cc4d !important; text-shadow: 0 0 8px rgba(0,204,77,0.3) !important; }
+section[data-mj="widget-bet-win"] tr[data-tier="mega"] { border-color: rgba(0,230,87,0.3) !important; box-shadow: 0 0 0 1px rgba(0,230,87,0.15), 0 0 16px rgba(0,230,87,0.08) !important; }
+section[data-mj="widget-bet-win"] tr[data-tier="mega"] .mj-payout-amount { background: linear-gradient(90deg,#00e057,#00ff88) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important; filter: drop-shadow(0 0 5px rgba(0,230,87,0.5)) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+    section[data-mj="widget-bet-win"] tr.sl-table-row,
+    section[data-mj="widget-bet-win"] tr.sl-table-row::before { transition: none !important; animation: none !important; }
+}
+@media (max-width: 600px) {
+    section[data-mj="widget-bet-win"] .sl-table-body,
+    section[data-mj="widget-bet-win"] tr.sl-table-row { grid-template-columns: minmax(0,1fr) 120px !important; }
+    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(2),
+    section[data-mj="widget-bet-win"] tr.sl-table-row .sl-table-cell:nth-child(3) { display: none !important; }
+}
+
+/* ── Footer ---------------------------------------------------------------- */
+
+/* Separation from page */
+[data-mj="footer-top"] {
+    border-top: 1px solid transparent !important;
+    background-image: linear-gradient(#0e0f11, #0e0f11),
+                      linear-gradient(90deg, transparent, #b8862a 30%, #d4a017 50%, #b8862a 70%, transparent) !important;
+    background-origin: border-box !important;
+    background-clip: padding-box, border-box !important;
+    background-color: #0e0f11 !important;
+    padding: 48px 32px 40px !important;
+    margin-top: 0 !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Logo zone */
+[data-mj="footer-logo"] {
+    display: block !important;
+    margin-bottom: 32px !important;
+    width: fit-content !important;
+}
+
+[data-mj="footer-logo"] img {
+    max-height: 48px !important;
+    width: auto !important;
+    display: block !important;
+}
+
+/* Nav grid */
+[data-mj="footer-nav"] {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    gap: 4px 16px !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+[data-mj="footer-nav-item"] {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Links */
+[data-mj="footer-nav-item"] .sl-navlink {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 40px !important;
+    padding: 6px 0 !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.04em !important;
+    color: #777 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    position: relative !important;
+    transition: color 0.18s ease !important;
+}
+
+[data-mj="footer-nav-item"] .sl-navlink::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 4px !important;
+    left: 0 !important;
+    width: 0 !important;
+    height: 1px !important;
+    background: #d4a017 !important;
+    transition: width 0.18s ease !important;
+}
+
+[data-mj="footer-nav-item"] .sl-navlink:hover {
+    color: #d4a017 !important;
+}
+
+[data-mj="footer-nav-item"] .sl-navlink:hover::after {
+    width: 100% !important;
+}
+
+/* Bottom divider slot */
+[data-mj="footer-top"]::after {
+    content: '' !important;
+    display: block !important;
+    margin-top: 40px !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent, rgba(184,134,42,0.3) 30%, rgba(212,160,23,0.3) 50%, rgba(184,134,42,0.3) 70%, transparent) !important;
+}
+
+/* ── Responsive ------------------------------------------------------------ */
+@media (max-width: 768px) {
+    [data-mj="footer-top"] {
+        padding: 36px 20px 32px !important;
+    }
+    [data-mj="footer-nav"] {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    [data-mj="footer-nav"] {
+        grid-template-columns: 1fr !important;
+    }
+    [data-mj="footer-nav-item"] .sl-navlink {
+        min-height: 44px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+    }
+}
